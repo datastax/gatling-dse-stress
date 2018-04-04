@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%-5level] %logger{15} - %msg%n%rEx</pattern>
+            <immediateFlush>false</immediateFlush>
+        </encoder>
+    </appender>
+
+    <!-- Used for printing our sims and configurations, don't remove -->
+    <appender name="SIMPLE_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%msg%n%rEx</pattern>
+            <immediateFlush>false</immediateFlush>
+        </encoder>
+    </appender>
+
+    <appender name="GATLING_SIM_LOG" class="ch.qos.logback.core.FileAppender">
+        <file>./build/logs/gatling-sim.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%-5level] %logger{15} - %msg%n%rEx</pattern>
+            <immediateFlush>false</immediateFlush>
+        </encoder>
+    </appender>
+
+    <!-- Uncomment for logging ALL HTTP request and responses -->
+    <!-- 	<logger name="io.gatling.http" level="TRACE" /> -->
+    <!-- Uncomment for logging ONLY FAILED HTTP request and responses -->
+    <!-- 	<logger name="io.gatling.http" level="DEBUG" /> -->
+
+    <logger name="com.datastax.gatling.stress.libs" level="${log.libs:-OFF}" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="GATLING_SIM_LOG" />
+    </logger>
+
+    <logger name="actions" level="${log.actions:-WARN}" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="GATLING_SIM_LOG" />
+    </logger>
+
+    <logger name="feeds" level="${log.feeds:-DEBUG}" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="GATLING_SIM_LOG" />
+    </logger>
+
+    <logger name="sims" level="${log.sims:-DEBUG}" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="GATLING_SIM_LOG" />
+    </logger>
+
+    <logger name="com.datastax.gatling.stress.core" level="${log.com.datastax.gatling.stress.core:-DEBUG}" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="GATLING_SIM_LOG" />
+    </logger>
+
+    <!-- Used for printing our sims and configurations, don't remove -->
+    <logger name="com.datastax.gatling.stress.utils" level="${log.utils:-DEBUG}" additivity="false">
+        <appender-ref ref="SIMPLE_CONSOLE" />
+        <appender-ref ref="GATLING_SIM_LOG" />
+    </logger>
+
+    <!-- Enable below if you want to log Cassandra Driver events-->
+    <logger name="com.datastax.driver" level="${log.cassandra:-ERROR}" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="GATLING_SIM_LOG" />
+    </logger>
+
+    <logger name="com.datastax.driver.core.ControlConnection" level="${log.cassandra:-WARN}" additivity="false" />
+
+    <logger name="org.apache.cassandra" level="${log.cassandra:-ERROR}" additivity="false" />
+
+
+    <root level="${log.root:-WARN}">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="GATLING_SIM_LOG" />
+    </root>
+
+</configuration>
