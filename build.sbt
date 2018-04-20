@@ -1,5 +1,6 @@
 name := "gatling-dse-stress"
 version := "1.2.2"
+releaseUseGlobalVersion := false
 scalaVersion := "2.12.5"
 
 scalacOptions ++= Seq("-target:jvm-1.8", "-Ybreak-cycles")
