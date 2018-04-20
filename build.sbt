@@ -1,4 +1,5 @@
 name := "gatling-dse-stress"
+organization := "com.datastax.gatling.stress"
 releaseUseGlobalVersion := false
 scalaVersion := "2.12.5"
 
