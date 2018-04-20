@@ -1,5 +1,4 @@
 name := "gatling-dse-stress"
-version := "1.2.2"
 releaseUseGlobalVersion := false
 scalaVersion := "2.12.5"
 
