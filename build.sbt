@@ -14,7 +14,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   // Formerly in lib directory
-  "com.datastax.gatling.plugin" %% "gatling-dse-plugin" % "1.2.0",
+  "com.datastax.gatling.plugin" %% "gatling-dse-plugin" % "1.2.2",
   "com.github.javafaker" % "javafaker" % "0.14",
 
   // From build.gradle
@@ -74,10 +74,10 @@ val mavenSettings = scala.xml.XML.loadFile(settingsXml)
 val artifactory = mavenSettings \ "servers" \ "server" filter { node => (node \ "id").text == "artifactory" }
 publishTo := {
   if (isSnapshot.value) {
-    Some("Artifactory Realm" at "http://datastax.jfrog.io/datastax/datastax-snapshots-local;" +
+    Some("Artifactory Realm" at "http://datastax.jfrog.io/datastax/datastax-public-snapshots-local;" +
       "build.timestamp=" + new java.util.Date().getTime)
   } else {
-    Some("Artifactory Realm" at "http://datastax.jfrog.io/datastax/datastax-releases-local")
+    Some("Artifactory Realm" at "http://datastax.jfrog.io/datastax/datastax-public-releases-local")
   }
 }
 credentials += Credentials(
