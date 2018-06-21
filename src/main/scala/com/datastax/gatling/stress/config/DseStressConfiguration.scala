@@ -26,6 +26,7 @@ object DseStressConfiguration extends LazyLogging {
         defaultConsistency = getStringOrNone(config, DseStressConfKeys.cassandra.defaultConsistency),
         serialConsistency = getStringOrNone(config, DseStressConfKeys.cassandra.serialConsistency),
         defaultKeyspace = getStringOrNone(config, DseStressConfKeys.cassandra.defaultKeyspace),
+        authMethod = getStringOrNone(config, DseStressConfKeys.cassandra.authMethod),
 
         auth = CassandraAuthConfiguration(
           username = getStringOrNone(config, DseStressConfKeys.cassandra.auth.username),
@@ -95,6 +96,7 @@ case class CassandraConfiguration(hosts: List[String],
                                   clusterName: Option[String],
                                   defaultConsistency: Option[String],
                                   serialConsistency: Option[String],
+                                  authMethod: Option[String],
                                   auth: CassandraAuthConfiguration,
                                   graphName: Option[String],
                                   defaultKeyspace: Option[String],
