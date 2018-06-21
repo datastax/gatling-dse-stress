@@ -19,6 +19,7 @@ object DseStressConfKeys {
     val defaultKeyspace = base + "defaultKeyspace"
     val defaultConsistency = base + "defaultConsistency"
     val serialConsistency = base + "serialConsistency"
+    val authMethod = base + "authMethod"
 
     object auth {
       private val auth = base + "auth."
