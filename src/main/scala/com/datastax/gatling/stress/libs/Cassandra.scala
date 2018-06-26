@@ -139,8 +139,7 @@ class Cassandra(conf: Config) extends LazyLogging {
     if (cassandraConf.auth.username.nonEmpty && cassandraConf.auth.password.nonEmpty) {
       logger.debug("Username and password set in configs using to connect to nodes")
       clusterBuilder.withCredentials(cassandraConf.auth.username.get, cassandraConf.auth.password.get)
-    }
-       else if (cassandraConf.authMethod.nonEmpty) {
+    } else if (cassandraConf.authMethod.nonEmpty) {
       if (cassandraConf.authMethod.get.equalsIgnoreCase("kerberos")) {
         logger.debug("Using kerberos for authentication")
         clusterBuilder.withAuthProvider(DseGSSAPIAuthProvider.builder().build())
