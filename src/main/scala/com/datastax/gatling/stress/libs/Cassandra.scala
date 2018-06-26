@@ -2,6 +2,7 @@ package com.datastax.gatling.stress.libs
 
 import com.datastax.driver.core.policies._
 import com.datastax.driver.core.{ConsistencyLevel, HostDistance, PoolingOptions, QueryOptions}
+import com.datastax.driver.dse.auth.DseGSSAPIAuthProvider
 import com.datastax.driver.dse.graph.GraphOptions
 import com.datastax.driver.dse.{DseCluster, DseSession}
 import com.datastax.gatling.stress.config.{CassandraConfiguration, DseStressConfiguration}
@@ -138,6 +139,11 @@ class Cassandra(conf: Config) extends LazyLogging {
     if (cassandraConf.auth.username.nonEmpty && cassandraConf.auth.password.nonEmpty) {
       logger.debug("Username and password set in configs using to connect to nodes")
       clusterBuilder.withCredentials(cassandraConf.auth.username.get, cassandraConf.auth.password.get)
+    } else if (cassandraConf.authMethod.nonEmpty) {
+      if (cassandraConf.authMethod.get.equalsIgnoreCase("kerberos")) {
+        logger.debug("Using kerberos for authentication")
+        clusterBuilder.withAuthProvider(DseGSSAPIAuthProvider.builder().build())
+      }
     }
 
     // set default consistency
