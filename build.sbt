@@ -14,7 +14,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   // Formerly in lib directory
-  "com.datastax.gatling.plugin" %% "gatling-dse-plugin" % "1.2.2",
+  "com.datastax.gatling.plugin" %% "gatling-dse-plugin" % "1.3.1",
   "com.github.javafaker" % "javafaker" % "0.14",
 
   // From build.gradle
