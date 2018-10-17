@@ -99,8 +99,3 @@ lazy val root = (project in file("."))
     scalaVersion := "2.12.5",
     organization := "com.datastax.gatling.stress",
     name := "gatling-dse-stress")
-  .settings(
-    addArtifact(
-      Artifact("gatling-dse-stress", "assembly"),
-      sbtassembly.AssemblyKeys.assembly))
-
