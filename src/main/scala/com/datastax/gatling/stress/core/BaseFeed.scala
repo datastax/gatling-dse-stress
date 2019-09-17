@@ -13,12 +13,14 @@ import org.apache.commons.math3.util.Pair
 import org.json4s._
 import org.json4s.native.Serialization
 
-import scala.util.Random
+import java.util.Random
 
 
-abstract class BaseFeed extends LazyLogging {
+abstract class BaseFeed(theSeed: Option[Long] = None) extends LazyLogging {
 
-  protected lazy val faker: Faker = new Faker
+  protected val seed = theSeed
+  protected lazy val random: Random = if (seed.isEmpty) new Random() else new Random(seed.get)
+  protected lazy val faker: Faker = new Faker(random)
   protected lazy val jsonDataGenerator: JsonDataGenerator = new JsonDataGenerator
 
   protected val idTypes = Array("PRODUCT_ID", "UPC", "ITEM_ID")
@@ -64,7 +66,7 @@ abstract class BaseFeed extends LazyLogging {
     * @return
     */
   protected def getRandom[T](seq: Seq[T]): T = {
-    seq(Random.nextInt(seq.length))
+    seq(random.nextInt(seq.length))
   }
 
 
@@ -74,7 +76,9 @@ abstract class BaseFeed extends LazyLogging {
     * @return
     */
   protected def getUuid: UUID = {
-    UUIDs.random()
+    var array = new Array[Byte](16)
+    random.nextBytes(array)
+    UUID.nameUUIDFromBytes(array)
   }
 
   /**
@@ -133,7 +137,7 @@ abstract class BaseFeed extends LazyLogging {
       Timestamp.valueOf(Option(endTs).getOrElse("2017-01-01 00:00:00")).getTime
     }
 
-    val time: Long = (startTime + (Math.random() * (endTime - startTime + 1))).toLong
+    val time: Long = (startTime + (random.nextDouble * (endTime - startTime + 1))).toLong
     new Timestamp(time)
   }
 
@@ -222,6 +226,8 @@ abstract class BaseFeed extends LazyLogging {
     }
 
     private val dist = new EnumeratedDistribution(distMap)
+    if (!(seed.isEmpty))
+      dist.reseedRandomGenerator(seed.get)
 
     def getItem = {
       dist.sample()
