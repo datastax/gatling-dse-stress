@@ -145,8 +145,16 @@ object Starter {
     }
 
     props.simulationClass(simList.head)
-    val res = Gatling.fromMap(props.build)
+    try {
+      val res = Gatling.fromMap(props.build)
+      System.exit(res)
+    }
+    catch{
+      case e: Exception =>
+        print(e.printStackTrace())
+        System.exit(1)
 
-    System.exit(res)
+    }
+
   }
 }
