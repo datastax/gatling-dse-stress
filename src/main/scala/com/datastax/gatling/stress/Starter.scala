@@ -8,6 +8,8 @@ import com.typesafe.config.ConfigRenderOptions
 import io.gatling.app.Gatling
 import io.gatling.core.config.GatlingPropertiesBuilder
 
+import java.nio.file.FileSystems
+
 /**
   * Start Class for All Options
   */
@@ -15,6 +17,8 @@ object Starter {
 
   def main(args: Array[String]): Unit = {
 
+    // Workaround for https://bugs.openjdk.java.net/browse/JDK-8194653
+    FileSystems.getDefault
     val parser = new scopt.OptionParser[GatlingRunnerConfig]("") {
 
       override def showUsageOnError = true
