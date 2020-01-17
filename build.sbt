@@ -21,8 +21,8 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe" % "config" % "1.3.2",
   "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.3.0" % Provided,
-  "com.datastax.dse" % "dse-java-driver-core" % "1.8.0-beta1",
-  "com.datastax.dse" % "dse-java-driver-graph" % "1.8.0-beta1",
+  "com.datastax.dse" % "dse-java-driver-core" % "1.9.0",
+  "com.datastax.dse" % "dse-java-driver-graph" % "1.9.0",
 
   // Testing resources
   "org.scalatest" %% "scalatest" % "3.0.4" % Test,
