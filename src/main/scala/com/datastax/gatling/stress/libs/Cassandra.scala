@@ -1,7 +1,7 @@
 package com.datastax.gatling.stress.libs
 
 import com.datastax.driver.core.policies._
-import com.datastax.driver.core.{ConsistencyLevel, HostDistance, PoolingOptions, QueryOptions}
+import com.datastax.driver.core._
 import com.datastax.driver.dse.auth.DseGSSAPIAuthProvider
 import com.datastax.driver.dse.graph.GraphOptions
 import com.datastax.driver.dse.{DseCluster, DseSession}
@@ -99,7 +99,7 @@ class Cassandra(conf: Config) extends LazyLogging {
   protected def getLoadBalancingPolicy: LoadBalancingPolicy = {
 
     if (cassandraConf.dcName.nonEmpty) {
-      this.loadBalancingPolicy = new TokenAwarePolicy(DCAwareRoundRobinPolicy.builder().withLocalDc(cassandraConf.dcName.get).build())
+      this.loadBalancingPolicy = new TokenAwarePolicy(LatencyAwarePolicy.builder(DCAwareRoundRobinPolicy.builder().withLocalDc(cassandraConf.dcName.get).build()).withExclusionThreshold(2.0).build(),com.datastax.driver.core.policies.TokenAwarePolicy.ReplicaOrdering.NEUTRAL)
       logger.debug("dcName found in configs, setting connection to TokenAware(DCAwareRR) w/ dc = {}", cassandraConf.dcName.get)
     } else {
       this.loadBalancingPolicy = new TokenAwarePolicy(DCAwareRoundRobinPolicy.builder().build())
@@ -130,6 +130,9 @@ class Cassandra(conf: Config) extends LazyLogging {
     val clusterBuilder = new DseCluster.Builder()
 
     clusterBuilder.withLoadBalancingPolicy(loadBalancingPolicy)
+    clusterBuilder.withSpeculativeExecutionPolicy(new PercentileSpeculativeExecutionPolicy(ClusterWidePercentileTracker.builder(12100).build(), 99, 5))
+    clusterBuilder.withRetryPolicy(new LoggingRetryPolicy(DefaultRetryPolicy.INSTANCE))
+
     clusterBuilder.withPort(cassandraConf.port)
 
     if (cassandraConf.clusterName.nonEmpty) {
