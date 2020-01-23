@@ -47,6 +47,14 @@ object DseStressConfKeys {
       val maxQueueSize = poolingOptions + "maxQueueSize"
     }
 
+    object graphite {
+      private val location = base + "graphite."
+      val host = location + "host"
+      val port = location + "port"
+      val prefix = location + "prefix"
+      val interval = location + "interval"
+    }
+
     val graphName = base + "graphName"
 
   }

@@ -21,6 +21,7 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe" % "config" % "1.3.2",
   "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.3.0" % Provided,
+  "io.dropwizard.metrics" % "metrics-graphite" % "3.2.6",
 
   // Testing resources
   "org.scalatest" %% "scalatest" % "3.0.4" % Test,
