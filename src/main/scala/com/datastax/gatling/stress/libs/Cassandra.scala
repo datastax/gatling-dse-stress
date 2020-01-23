@@ -1,5 +1,10 @@
 package com.datastax.gatling.stress.libs
 
+import java.net.InetSocketAddress
+import java.util.concurrent.TimeUnit
+
+import com.codahale.metrics.MetricRegistry
+import com.codahale.metrics.graphite.{Graphite, GraphiteReporter}
 import com.datastax.driver.core.policies._
 import com.datastax.driver.core._
 import com.datastax.driver.dse.auth.DseGSSAPIAuthProvider
@@ -22,6 +27,9 @@ class Cassandra(conf: Config) extends LazyLogging {
   protected val cassandraConf: CassandraConfiguration = DseStressConfiguration(conf).cassandra
 
   private val clusterBuilder: DseCluster.Builder = initClusterBuilder()
+
+  private lazy val graphiteServer: Option[Graphite] = cassandraConf.graphiteConf.host.map(host =>
+    new Graphite(new InetSocketAddress(host, cassandraConf.graphiteConf.port)))
 
   private var session: DseSession = _
   private var loadBalancingPolicy: LoadBalancingPolicy = getLoadBalancingPolicy
@@ -116,6 +124,14 @@ class Cassandra(conf: Config) extends LazyLogging {
     */
   protected def createSession: DseSession = {
     session = clusterBuilder.build().connect()
+    graphiteServer.foreach(server => {
+      val metricsRegistry: MetricRegistry = session.getCluster.getMetrics.getRegistry
+      val reporter = GraphiteReporter
+        .forRegistry(metricsRegistry)
+        .prefixedWith(cassandraConf.graphiteConf.prefix)
+        .build(server)
+      reporter.start(cassandraConf.graphiteConf.interval.toSeconds, TimeUnit.SECONDS)
+    })
     session
   }
 

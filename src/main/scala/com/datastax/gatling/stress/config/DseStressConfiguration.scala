@@ -1,9 +1,12 @@
 package com.datastax.gatling.stress.config
 
+import java.net.InetAddress
+
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
+import scala.concurrent.duration.Duration
 
 object DseStressConfiguration extends LazyLogging {
 
@@ -48,8 +51,14 @@ object DseStressConfiguration extends LazyLogging {
           maxQueueSize = config.getInt(DseStressConfKeys.cassandra.poolingOptions.maxQueueSize)
         ),
 
-        graphName = getStringOrNone(config, DseStressConfKeys.cassandra.graphName)
+        graphName = getStringOrNone(config, DseStressConfKeys.cassandra.graphName),
 
+        graphiteConf = GraphiteConfiguration(
+          host = getStringOrNone(config, DseStressConfKeys.cassandra.graphite.host),
+          port = config.getInt(DseStressConfKeys.cassandra.graphite.port),
+          prefix = config.getString(DseStressConfKeys.cassandra.graphite.prefix),
+          interval = Duration(config.getString(DseStressConfKeys.cassandra.graphite.interval))
+        )
       ),
 
       config = config
@@ -85,10 +94,17 @@ object DseStressConfiguration extends LazyLogging {
     hostList
   }
 
+  private def parseGraphitePrefix(prefix: String): String =
+    prefix.replace("${hostname}", InetAddress.getLocalHost.getHostName)
 
 }
 
 case class GeneralConfiguration(dataDir: String)
+
+case class GraphiteConfiguration(host: Option[String],
+                                 port: Int,
+                                 prefix: String,
+                                 interval: Duration)
 
 case class CassandraConfiguration(hosts: List[String],
                                   port: Int,
@@ -100,7 +116,8 @@ case class CassandraConfiguration(hosts: List[String],
                                   auth: CassandraAuthConfiguration,
                                   graphName: Option[String],
                                   defaultKeyspace: Option[String],
-                                  poolingOptions: CassandraPoolingConfiguration)
+                                  poolingOptions: CassandraPoolingConfiguration,
+                                  graphiteConf: GraphiteConfiguration)
 
 case class CassandraAuthConfiguration(username: Option[String],
                                       password: Option[String])

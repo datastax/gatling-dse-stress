@@ -15,7 +15,8 @@ import scala.util.Random
   */
 class FetchBaseDataSpec extends BaseCassandraServerSpec {
 
-  val defaultConfig = ConfigFactory.load("./application.conf")
+  val appConfig = new AppConfig()
+  val defaultConfig = appConfig.loadConfig(Some("./application.conf"))
   val defaultCass = new Cassandra(defaultConfig)
   val defaultAppConfig = new SimConfig(defaultConfig, "fetchBaseData", "read")
 

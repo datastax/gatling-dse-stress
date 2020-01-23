@@ -10,7 +10,8 @@ import com.typesafe.config.ConfigFactory
 
 class CassandraSpec extends BaseCassandraSpec {
 
-  val defaultConfig = ConfigFactory.load("./application.conf")
+  val appConfig = new AppConfig()
+  val defaultConfig = appConfig.loadConfig(Some("./application.conf"))
   val defaultCass = new Cassandra(defaultConfig)
 
   describe("Builder Defaults") {
