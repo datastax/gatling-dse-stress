@@ -28,8 +28,15 @@ class Cassandra(conf: Config) extends LazyLogging {
 
   private val clusterBuilder: DseCluster.Builder = initClusterBuilder()
 
-  private lazy val graphiteServer: Option[Graphite] = cassandraConf.graphiteConf.host.map(host =>
-    new Graphite(new InetSocketAddress(host, cassandraConf.graphiteConf.port)))
+  private lazy val graphiteServer: Option[Graphite] = if(cassandraConf.graphiteConf.host.isDefined) {
+    val host = cassandraConf.graphiteConf.host.get
+    val port = cassandraConf.graphiteConf.port
+    logger.info("Opening connection to Graphite server at {}:{} for driver metrics", host, port)
+    Some(new Graphite(new InetSocketAddress(host, port)))
+  } else {
+    logger.info("No graphite host was configured for driver metrics")
+    None
+  }
 
   private var session: DseSession = _
   private var loadBalancingPolicy: LoadBalancingPolicy = getLoadBalancingPolicy
@@ -124,14 +131,19 @@ class Cassandra(conf: Config) extends LazyLogging {
     */
   protected def createSession: DseSession = {
     session = clusterBuilder.build().connect()
-    graphiteServer.foreach(server => {
+    if(graphiteServer.isDefined) {
+      logger.debug("Creating metrics reporter for driver metrics")
+      val intervalInSeconds = cassandraConf.graphiteConf.interval.toSeconds
       val metricsRegistry: MetricRegistry = session.getCluster.getMetrics.getRegistry
       val reporter = GraphiteReporter
         .forRegistry(metricsRegistry)
         .prefixedWith(cassandraConf.graphiteConf.prefix)
-        .build(server)
-      reporter.start(cassandraConf.graphiteConf.interval.toSeconds, TimeUnit.SECONDS)
-    })
+        .build(graphiteServer.get)
+      reporter.start(intervalInSeconds, TimeUnit.SECONDS)
+      logger.debug("Driver metrics are uploaded every {} seconds", intervalInSeconds)
+    } else {
+      logger.debug("Driver metrics are not uploaded as no Graphite server was configured")
+    }
     session
   }
 
