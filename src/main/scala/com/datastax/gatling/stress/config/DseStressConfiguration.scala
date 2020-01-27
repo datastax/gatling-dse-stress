@@ -56,7 +56,7 @@ object DseStressConfiguration extends LazyLogging {
         graphiteConf = GraphiteConfiguration(
           host = getStringOrNone(config, DseStressConfKeys.cassandra.graphite.host),
           port = config.getInt(DseStressConfKeys.cassandra.graphite.port),
-          prefix = config.getString(DseStressConfKeys.cassandra.graphite.prefix),
+          prefix = parseGraphitePrefix(config.getString(DseStressConfKeys.cassandra.graphite.prefix)),
           interval = Duration(config.getString(DseStressConfKeys.cassandra.graphite.interval))
         )
       ),

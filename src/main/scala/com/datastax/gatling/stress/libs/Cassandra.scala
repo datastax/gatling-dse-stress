@@ -132,15 +132,16 @@ class Cassandra(conf: Config) extends LazyLogging {
   protected def createSession: DseSession = {
     session = clusterBuilder.build().connect()
     if(graphiteServer.isDefined) {
-      logger.debug("Creating metrics reporter for driver metrics")
+      logger.debug("Creating driver metrics reporter")
       val intervalInSeconds = cassandraConf.graphiteConf.interval.toSeconds
+      val prefix = cassandraConf.graphiteConf.prefix
       val metricsRegistry: MetricRegistry = session.getCluster.getMetrics.getRegistry
       val reporter = GraphiteReporter
         .forRegistry(metricsRegistry)
-        .prefixedWith(cassandraConf.graphiteConf.prefix)
+        .prefixedWith(prefix)
         .build(graphiteServer.get)
       reporter.start(intervalInSeconds, TimeUnit.SECONDS)
-      logger.debug("Driver metrics are uploaded every {} seconds", intervalInSeconds)
+      logger.debug("Driver metrics are uploaded every {}s with the prefix {}", intervalInSeconds, prefix)
     } else {
       logger.debug("Driver metrics are not uploaded as no Graphite server was configured")
     }
