@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
   "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.3.0" % Provided,
   "com.datastax.dse" % "dse-java-driver-core" % "1.9.0",
   "com.datastax.dse" % "dse-java-driver-graph" % "1.9.0",
+  "io.dropwizard.metrics" % "metrics-graphite" % "3.2.6",
 
   // Testing resources
   "org.scalatest" %% "scalatest" % "3.0.4" % Test,
