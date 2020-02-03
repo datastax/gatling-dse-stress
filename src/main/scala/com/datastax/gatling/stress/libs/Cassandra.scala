@@ -39,7 +39,6 @@ class Cassandra(conf: Config) extends LazyLogging {
   }
 
   private var session: DseSession = _
-  private var loadBalancingPolicy: LoadBalancingPolicy = getLoadBalancingPolicy
 
 
   /**
@@ -107,24 +106,6 @@ class Cassandra(conf: Config) extends LazyLogging {
 
 
   /**
-    * Get Load Balance Policy
-    *
-    * @return
-    */
-  protected def getLoadBalancingPolicy: LoadBalancingPolicy = {
-
-    if (cassandraConf.dcName.nonEmpty) {
-      this.loadBalancingPolicy = new TokenAwarePolicy(LatencyAwarePolicy.builder(DCAwareRoundRobinPolicy.builder().withLocalDc(cassandraConf.dcName.get).build()).withExclusionThreshold(2.0).build(),com.datastax.driver.core.policies.TokenAwarePolicy.ReplicaOrdering.NEUTRAL)
-      logger.debug("dcName found in configs, setting connection to TokenAware(DCAwareRR) w/ dc = {}", cassandraConf.dcName.get)
-    } else {
-      this.loadBalancingPolicy = new TokenAwarePolicy(DCAwareRoundRobinPolicy.builder().build())
-      logger.debug("dcName empty in configs, setting connection to TokenAware(DCAwareRR) w/ default to first host IP")
-    }
-
-    this.loadBalancingPolicy
-  }
-
-  /**
     * Create Cassandra Session
     *
     * @return
@@ -158,7 +139,28 @@ class Cassandra(conf: Config) extends LazyLogging {
 
     val clusterBuilder = new DseCluster.Builder()
 
-    clusterBuilder.withLoadBalancingPolicy(loadBalancingPolicy)
+    if (cassandraConf.dcName.nonEmpty) {
+      logger.debug("dcName found in configs, setting connection to TokenAware(LatencyAware(DCAwareRR)) w/ dc = {}", cassandraConf.dcName.get)
+      clusterBuilder.withLoadBalancingPolicy(
+        new TokenAwarePolicy(
+          LatencyAwarePolicy.builder(
+            DCAwareRoundRobinPolicy.builder()
+              .withLocalDc(cassandraConf.dcName.get)
+              .build())
+            .withExclusionThreshold(2.0)
+            .build(),
+          com.datastax.driver.core.policies.TokenAwarePolicy.ReplicaOrdering.NEUTRAL
+        )
+      )
+    } else {
+      logger.debug("dcName empty in configs, setting connection to TokenAware(DCAwareRR) w/ default to first host IP")
+      clusterBuilder.withLoadBalancingPolicy(
+        new TokenAwarePolicy(
+          DCAwareRoundRobinPolicy.builder().build()
+        )
+      )
+    }
+
     clusterBuilder.withSpeculativeExecutionPolicy(new PercentileSpeculativeExecutionPolicy(ClusterWidePercentileTracker.builder(12100).build(), 99, 5))
     clusterBuilder.withRetryPolicy(new LoggingRetryPolicy(DefaultRetryPolicy.INSTANCE))
 
